@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'app.dart';
+import 'main.dart';
 
 void main() {
-  runApp(const App(flavor: "Production"));
+  runApp(const MyApp());
 }

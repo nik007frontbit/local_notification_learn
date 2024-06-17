@@ -2,13 +2,46 @@ import 'package:flutter/material.dart';
 
 import '../routes.dart';
 
-class AnimationFirstPage extends StatelessWidget {
-  const AnimationFirstPage({super.key});
+class AnimationFirstPage extends StatefulWidget {
+  AnimationFirstPage({super.key});
+
+  @override
+  State<AnimationFirstPage> createState() => _AnimationFirstPageState();
+}
+
+class _AnimationFirstPageState extends State<AnimationFirstPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController animationController;
+  late Animation<Color?> animationColor;
+  late Animation<double> animationSize;
+
+  @override
+  void initState() {
+    super.initState();
+    animationController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
+
+    animationColor = ColorTween(
+      begin: Colors.grey,
+      end: Colors.red,
+    ).animate(animationController);
+
+    animationSize = TweenSequence<double>([
+      TweenSequenceItem<double>(tween: Tween(begin: 30, end: 50), weight: 50),
+      TweenSequenceItem<double>(tween: Tween(begin: 50, end: 30), weight: 50),
+    ]).animate(animationController);
+
+    animationController.addListener(() {
+      print(animationController.value);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Animations")),
+      appBar: AppBar(title: const Text("Animations")),
       body: Column(
         children: [
           TweenAnimationBuilder(
@@ -16,10 +49,10 @@ class AnimationFirstPage extends StatelessWidget {
               end: 1,
               begin: 0,
             ),
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
             builder: (context, double value, child) => Padding(
               padding: EdgeInsets.all(value * 30),
-              child: Text(
+              child: const Text(
                 "Tween",
                 style: TextStyle(fontSize: 20, color: Colors.black),
               ),
@@ -33,6 +66,17 @@ class AnimationFirstPage extends StatelessWidget {
                   width: 100,
                   height: 100,
                   child: Image.asset("assets/dog1.png")),
+            ),
+          ),
+          AnimatedBuilder(
+            animation: animationController,
+            builder: (context, child) => GestureDetector(
+               onTap: () {
+                 animationController.status==AnimationStatus.completed?animationController.reverse():animationController.forward();
+                 print(animationController.status);
+               },
+              child: Icon(Icons.heart_broken_sharp,
+                  color: animationColor.value, size: animationSize.value),
             ),
           ),
           Expanded(child: AnimatedListExample()),
@@ -65,26 +109,28 @@ class _AnimatedListExampleState extends State<AnimatedListExample> {
 
   void _addItem() {
     _items.insert(0, _counter++);
-    _listKey.currentState?.insertItem(0, duration: Duration(milliseconds: 300));
+    _listKey.currentState
+        ?.insertItem(0, duration: const Duration(milliseconds: 300));
   }
 
   void _removeItem(int index) {
     int removedItem = _items.removeAt(index);
     _listKey.currentState?.removeItem(
       index,
-          (context, animation) => _buildItem(context, removedItem, animation),
-      duration: Duration(milliseconds: 300),
+      (context, animation) => _buildItem(context, removedItem, animation),
+      duration: const Duration(milliseconds: 300),
     );
   }
 
-  Widget _buildItem(BuildContext context, int item, Animation<double> animation) {
+  Widget _buildItem(
+      BuildContext context, int item, Animation<double> animation) {
     return SizeTransition(
       sizeFactor: animation,
       child: ListTile(
         key: ValueKey<int>(item),
         title: Text('Item $item'),
         trailing: IconButton(
-          icon: Icon(Icons.delete),
+          icon: const Icon(Icons.delete),
           onPressed: () => _removeItem(_items.indexOf(item)),
         ),
       ),
@@ -95,13 +141,13 @@ class _AnimatedListExampleState extends State<AnimatedListExample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Animated List Example'),
+        title: const Text('Animated List Example'),
       ),
       body: Column(
         children: [
           ElevatedButton(
             onPressed: _addItem,
-            child: Text('Add Item'),
+            child: const Text('Add Item'),
           ),
           Expanded(
             child: AnimatedList(
