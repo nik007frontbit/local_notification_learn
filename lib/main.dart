@@ -1,10 +1,14 @@
 import 'dart:developer';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
 import 'package:local_notification_learn/firebase/messaging/api.dart';
+import 'package:local_notification_learn/routes.dart';
 import 'package:local_notification_learn/screens/analytics.dart';
+import 'package:local_notification_learn/screens/animation_learn.dart';
 import 'package:local_notification_learn/screens/home_screen.dart';
 
 import 'firebase_options.dart';
@@ -12,12 +16,29 @@ import 'firebase_options.dart';
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message");
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  FirebaseApi().initNotification();
+
+  // await FirebaseApi().initNotification();
+  FirebaseApi().initNoti();
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print('Got a message whilst in the foreground!');
+    print('Message data: ${message.data}');
+
+    if (message.notification != null) {
+      print('Message also contained a notification: ${message.notification}');
+    }
+  });
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+/*
+
   //only local notification
   AndroidInitializationSettings androidInitializationSettings =
       const AndroidInitializationSettings("@mipmap/ic_launcher");
@@ -34,6 +55,7 @@ Future<void> main() async {
   );
   bool? initialized =
       await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+*/
 
   runApp(const MyApp());
 }
@@ -65,8 +87,11 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
       // home: AnalyticScreen(),
+
+      onGenerateRoute: generateRoute,
+      initialRoute: Routes.home,
     );
   }
 }

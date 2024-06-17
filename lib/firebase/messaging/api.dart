@@ -1,8 +1,16 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+
+import '../../firebase_options.dart';
+import '../../screens/analytics.dart';
+
+String fcm = "";
 
 class FirebaseApi {
   final _firebaseMessaging = FirebaseMessaging.instance;
@@ -11,7 +19,7 @@ class FirebaseApi {
     "high_notification_channel",
     "High Notification",
     description: "This channel is important to show notification",
-    importance: Importance.high,
+    importance: Importance.max,
   );
   final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -34,6 +42,7 @@ class FirebaseApi {
       onDidReceiveNotificationResponse: (details) {
         final message = RemoteMessage.fromMap(jsonDecode(details.payload!));
         handleMessage(message);
+        Get.to(AnalyticScreen());
       },
     );
   }
@@ -59,15 +68,13 @@ class FirebaseApi {
       sound: true,
     );
     FirebaseMessaging.instance.getInitialMessage().then((value) {
-      print('Received a value foreground message: ${value}');
+      print('Received a value intial foreground message: ${value}');
     });
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
       print('Received a event foreground message: ${event}');
     });
-   /* FirebaseMessaging.onBackgroundMessage((RemoteMessage? message) async {
-      if(message==null)return;
-      print('Handling a background message: ${message.messageId}');
-    });*/
+    print("background");
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final notification = message.notification;
       if (notification == null) return;
@@ -75,7 +82,7 @@ class FirebaseApi {
       print(message.notification?.body);
       print(message.notification?.title);
       print(message.data);
-      _flutterLocalNotificationsPlugin.show(
+      /*  _flutterLocalNotificationsPlugin.show(
         notification.hashCode,
         notification.title,
         notification.body,
@@ -88,7 +95,7 @@ class FirebaseApi {
           ),
         ),
         payload: jsonEncode(message.toMap()),
-      );
+      );*/
     });
   }
 
@@ -96,7 +103,17 @@ class FirebaseApi {
     await _firebaseMessaging.requestPermission();
     final fcmToken = await _firebaseMessaging.getToken();
     log("TOken :- $fcmToken");
+    print("TOken :- $fcmToken");
+
     initPushNotification();
     initLocalNotificationSetting();
+  }
+
+  initNoti() async {
+    await _firebaseMessaging.requestPermission();
+    final fcmToken = await _firebaseMessaging.getToken();
+    fcm = fcmToken.toString();
+    log("TOken :- $fcmToken");
+    print("TOken :- $fcmToken");
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../firebase/messaging/api.dart';
 import '../main.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -17,14 +18,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> showNotification() async {
     AndroidNotificationDetails androidNotificationDetails =
-    const AndroidNotificationDetails(
+        const AndroidNotificationDetails(
       "notification-leaning",
       "Local Notification",
       priority: Priority.max,
       importance: Importance.high,
     );
     DarwinNotificationDetails darwinNotificationDetails =
-    const DarwinNotificationDetails(
+        const DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
@@ -39,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   notificationDetails() async {
     NotificationAppLaunchDetails? details =
-    await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+        await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
     if (details != null) {
       if (details.didNotificationLaunchApp) {
         NotificationResponse? notificationResponse =
@@ -87,6 +88,9 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Text(
               texts,
+            ),
+            Text(
+              fcm.toString(),
             ),
             Text(
               '$_counter',
